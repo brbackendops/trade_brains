@@ -187,7 +187,7 @@ else:
     CACHES = {
         'default': {
             'BACKEND': 'django_redis.cache.RedisCache',
-            'LOCATIN': f'redis://{config('REDIS_CLIENT')}/1',
+            'LOCATION': f'redis://{config('REDIS_CLIENT')}/1',
             'OPTIONS': {
                 'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             }

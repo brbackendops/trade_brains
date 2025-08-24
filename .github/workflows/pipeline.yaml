@@ -11,6 +11,11 @@ jobs:
 
   build:
     name: Build
+    env:
+      DB_USERNAME: ${{ vars.POSTGRES_USERNAME }}
+      DB_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      DB_HOST: postgres
+      DB_PORT: 5432
     services:
       postgres:
         image: postgres
@@ -18,7 +23,10 @@ jobs:
           POSTGRES_PASSWORD: ${{ vars.POSTGRES_USERNAME }}
           POSTGRES_USERNAME: ${{ secrets.POSTGRES_PASSWORD }}
         options: >-
-          --health-cmd pg_ready
+          --health-cmd="pg_ready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
 
     runs-on: ubuntu-latest
     steps:
@@ -37,8 +45,8 @@ jobs:
       run: |
         pip install -r requirements.txt
 
-  test:
-    name: Test
+  test_and_coverage:
+    name: Test_And_Coverage
     needs: [ build ]
     runs-on: ubuntu-latest
     steps:
@@ -59,6 +67,21 @@ jobs:
 
     - name: make tests
       run: |
-        python manage.py trade_root.company.tests
-        python manage.py trade_root.users.tests
-        python manage.py trade_root.watchlist.tests
+        python manage.py test trade_root.company.tests
+        python manage.py test trade_root.users.tests
+        python manage.py test trade_root.watchlist.tests
+    
+    - name: make coverage report
+      run: coverage report > test_report.txt
+    
+    - name: upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: test_report.txt
+    
+    - name: upload coverage html report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report-html
+        path: htmlcov/
