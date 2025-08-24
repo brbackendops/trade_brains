@@ -16,8 +16,24 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+
+from rest_framework import permissions
+
+
+schema_view = get_schema_view(
+    openapi.Info(
+        title="Trade Brains API",
+        default_version = "v1",
+        description="API documentaiton for Trade Brains"
+    ),
+    public=True,
+    permission_classes=(permissions.AllowAny,),
+)
 
 urlpatterns = [
+    path('swagger-ui/',schema_view.with_ui('swagger',cache_timeout=0), name="swagger-ui"),
     path('', include('health_check.urls')),
     path('', include('django_prometheus.urls')),
     path('api/', include('trade_root.users.urls')),
