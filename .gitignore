@@ -1,5 +1,6 @@
 .vscode/
 htmlcov/
 logs/
+logs/*
 *.env
 *.coverage
