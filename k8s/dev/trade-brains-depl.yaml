@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trade-depl
+  namespace: trade
+  labels:
+    name: trade-brains-depl
+    tier: backend
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  replicas: 1
+  selector:
+    matchLabels:
+      name: trade-brains-api
+  template:
+    metadata:
+      labels:
+        name: trade-brains-api
+    spec:
+      tolerations:
+      - key: "node"
+        operator: "Equal"
+        value: "blue"
+        effect: "NoSchedule"
+      containers:
+      - name: trade-brains-api
+        image: nginx:latest
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 3
+            memory: 2Gi
+          requests:
+            cpu: 1
+            memory: 1Gi
