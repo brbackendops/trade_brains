@@ -185,6 +185,8 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
 
 CELERY_IMPORTS = ('trade_root.company.tasks',)
+CELERY_TIMEZONE = 'Asia/Dhaka'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 # Health Monitoring
 HEALTH_CHECK = {
@@ -205,7 +207,10 @@ else:
             'LOCATION': f'redis://{config('REDIS_CLIENT')}',
             'OPTIONS': {
                 'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            }
+                'CONNECTION_POOL_KWARGS': {'max_connections': 100}
+            },
+            'TIMEOUT': 300,
+            
         }
     }
 
