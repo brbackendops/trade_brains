@@ -3,6 +3,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from django.contrib.auth import authenticate
 from .models import User
 
+from .logger import log
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -39,23 +41,29 @@ class CustomTokenObtainSerializer(TokenObtainPairSerializer):
     username_field = 'email'
     
     def validate(self,attrs):
+        
+        req = self.context.get('request')
+        log.info(f"POST/{req.path} request received")
+        
         email = attrs.get('email')
         password = attrs.get('password')
     
         if email and password:
             user = authenticate(request=self.context.get('request'), email=email, password=password)
             if not user:
+                log.error(f"POST:{req.path} request ends in error: invalid credentials")
                 raise serializers.ValidationError("Invalid Credentials ")
             
-            # print("the user",user)
-            # print("password", user.password)
             if not user.is_active:
+                log.error(f"POST:{req.path} request ends in error: user is not active")
                 raise serializers.ValidationError("user is not active")
         else:
+            log.error(f"POST:{req.path} request ends in error: required fields [email,password] are missing ")
             raise serializers.ValidationError("email and password fields are required")
         
         refresh = self.get_token(user)
         
+        log.info(f"POST:{req.path} request successfull")
         return {
             "refresh": str(refresh),
             "access_token": str(refresh.access_token)

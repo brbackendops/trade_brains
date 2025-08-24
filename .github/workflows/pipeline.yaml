@@ -1,0 +1,132 @@
+name: Trade_App_Workflow
+on:
+  workflow_dispatch:
+  push:
+    branches:
+    - dev
+  pull_request:
+    branches:
+    - dev
+env:
+  environment: development
+  SECRET_KEY: ${{ secrets.SECRET_KEY }}
+  REDIS_CLIENT: ${{ secrets.REDIS_CLIENT }}
+jobs:
+
+  build:
+    name: Build
+    env:
+      DB_USERNAME: ${{ vars.POSTGRES_USERNAME }}
+      DB_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+      DB_HOST: postgres
+      DB_PORT: 5432
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_USERNAME: ${{ vars.POSTGRES_USERNAME }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+        options: >-
+          --health-cmd="pg_isready"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
+
+    - name: check files
+      run: ls
+
+    - name: setup python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12.2'
+
+    - name: install dependencies
+      run: |
+        pip install -r requirements.txt
+
+  test_and_coverage:
+    name: Test_And_Coverage
+    needs: [ build ]
+    runs-on: ubuntu-latest
+    steps:
+    - name: checkout
+      uses: actions/checkout@v4
+
+    - name: setup redis
+      uses: shogo82148/actions-setup-redis@v1
+      with:
+        redis-version: '5.0.14'
+    - run: redis-cli ping
+
+    - name: check files
+      run: ls
+
+    - name: setup python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12.2'
+
+    - name: install dependencies
+      run: |
+        pip install -r requirements.txt
+        pip install coverage
+
+    - name: make tests
+      run: |
+        coverage run --source='.' manage.py test trade_root.company.tests
+        coverage run --append --source='.' manage.py test trade_root.users.tests
+        coverage run --append --source='.' manage.py test trade_root.watchlist.tests
+    
+    - name: make coverage report
+      run: coverage report > test_report.txt
+    - name: make coverage report html
+      run: coverage html
+    
+    - name: upload coverage report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report
+        path: test_report.txt
+    
+    - name: upload coverage html report
+      uses: actions/upload-artifact@v4
+      with:
+        name: coverage-report-html
+        path: htmlcov/
+
+  docker:
+    name: building and testing docker
+    runs-on: ubuntu-latest
+    needs: [build,test_and_coverage]
+    steps:
+      - name: checkout sourcecode
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+        
+      # - name: push to hub
+      #   id: push_to_hub
+      #   uses: docker/build-push-action@v6
+      #   with:
+      #     context: .
+      #     file: Dockerfile
+      #     push: true
+      #     tags: "${{ vars.DOCKER_USERNAME }}/trade-app:${{ github.sha }}"
+          
+      # - name: Docker Image Testing
+      #   if: success() && steps.push_to_hub.outcome == 'success'
+      #   run: |
+      #     docker images
+      #     docker run --name ${{vars.DOCKER_USERNAME}}-trade-app-dev -d ${{ vars.DOCKER_USERNAME }}/trade-app:${{ github.sha }}`

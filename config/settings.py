@@ -14,6 +14,7 @@ from pathlib import Path
 from decouple import config
 from django.apps import apps
 from datetime import timedelta
+import structlog
 import sys
 
 
@@ -31,18 +32,29 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if config("environment") == "development" else False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    '127.0.0.1',
+    '*.ngrok-free.app',
+    'https://incredibly-exotic-starfish.ngrok-free.app',
+]
 
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.ngrok-free.app',
+    'https://incredibly-exotic-starfish.ngrok-free.app'
+]
 
 # Application definition
 
 INSTALLED_APPS = [    
-    'rest_framework',    
+    'rest_framework',   
     'drf_yasg',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'django_structlog',
     'django_prometheus',
+    'django_celery_results',
+    'django_celery_beat',
     'health_check',
     'health_check.db',
     'health_check.contrib.migrations',
@@ -171,7 +183,20 @@ STATICFILES_DIR = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+#Prometheus 
 PROMETHEUS_METRIC_NAMESPACE = "trade-brains-watchlist"
+
+#Celery
+CELERY_RESULT_BACKEND = 'django-db'  # Or Redis if you're not using django-celery-results
+CELERY_TASK_TIME_LIMIT = 3000
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_IMPORTS = ('trade_root.company.tasks',)
+CELERY_TIMEZONE = 'Asia/Dhaka'
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+
+# Health Monitoring
 HEALTH_CHECK = {
     'DISK_USAGE_MAX': 100,
     'MEMORY_MIN': 1024
@@ -187,15 +212,21 @@ else:
     CACHES = {
         'default': {
             'BACKEND': 'django_redis.cache.RedisCache',
-            'LOCATIN': f'redis://{config('REDIS_CLIENT')}/1',
+            'LOCATION': f'redis://{config('REDIS_CLIENT')}',
             'OPTIONS': {
                 'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            }
+                'CONNECTION_POOL_KWARGS': {'max_connections': 100}
+            },
+            'TIMEOUT': 300,
+            
         }
     }
 
+# Default Auth User Model
 AUTH_USER_MODEL='users.User'
 
+
+# DRF CONFIG
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -204,6 +235,8 @@ REST_FRAMEWORK = {
     )
 }
 
+
+# JWT CONFIG
 SIMPLE_JWT = {
     
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
@@ -233,7 +266,65 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",        
 }
 
+# StructLog Config
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "json_formatter": {
+            "()": structlog.stdlib.ProcessorFormatter,
+            "processor": structlog.processors.JSONRenderer(),
+        },
+        "plain_console": {
+            "()": structlog.stdlib.ProcessorFormatter,
+            "processor": structlog.dev.ConsoleRenderer(),
+        },
+        "key_value": {
+            "()": structlog.stdlib.ProcessorFormatter,
+            "processor": structlog.processors.KeyValueRenderer(key_order=['timestamp', 'level', 'event', 'logger']),
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "plain_console",
+        },
+        # "json_file": {
+        #     "class": "logging.handlers.WatchedFileHandler",
+        #     "filename": "logs/json.log",
+        #     "formatter": "json_formatter",
+        # },
+        # # "flat_line_file": {
+        # #     "class": "logging.handlers.WatchedFileHandler",
+        # #     "filename": "logs/flat_line.log",
+        # #     "formatter": "key_value",
+        # # },
+    },
+    "loggers": {
+        "trade_app_loggers": {
+            "handlers": ["console"],
+            "level": "INFO",
+        },
+    }
 }
+
+structlog.configure(
+    processors=[
+        structlog.contextvars.merge_contextvars,
+        structlog.stdlib.filter_by_level,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.stdlib.add_logger_name,
+        structlog.stdlib.add_log_level,
+        structlog.stdlib.PositionalArgumentsFormatter(),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        structlog.processors.UnicodeDecoder(),
+        structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
+    ],
+    context_class=dict,
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    wrapper_class=structlog.stdlib.BoundLogger,
+    cache_logger_on_first_use=True,
+)
+
+DJANGO_STRUCTLOG_CELERY_ENABLED=True

@@ -16,7 +16,8 @@ from rest_framework.serializers import ValidationError
 # model
 from .models import User
 
-
+# debug
+from .logger import log
 
 # views
 
@@ -25,13 +26,17 @@ class RegisterUserView(APIView):
     
     def post(self,request,*args,**kwargs):
         try:
+            log.info(f"POST:{request.path} request received")
             body = request.data
             serializer = self.serializer_class(data=body)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             request.data.pop('password')
-            return Response(request.data,status=status.HTTP_201_CREATED)        
+            
+            log.info(f"POST:{request.path} request successfull")
+            return Response(request.data,status=status.HTTP_201_CREATED)
         except ValidationError as err:
+            log.error(f"POST:{request.path} request end in validation error: {err.detail}")
             return Response(
                 {
                     "status": "error",
@@ -41,6 +46,7 @@ class RegisterUserView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         except Exception as err:
+            log.error(f"POST:{request.path} request end in internal server error: {str(err)}")
             return Response({
                 "status": "error",
                 "name": err.__class__.__name__,

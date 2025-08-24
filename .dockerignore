@@ -2,3 +2,4 @@ Dockerfile
 ./.vscode
 .gitignore
 *.md
+logs/

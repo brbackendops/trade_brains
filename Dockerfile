@@ -1,15 +1,18 @@
-FROM python:alpine
+FROM python:3.11-slim
 
 WORKDIR /app
 
-COPY requirements.txt ./requirements.txt
+COPY requirements.txt .
 
-RUN pip install -r requirements.txt
+RUN apt-get update && apt-get install -y \
+    libpq-dev \
+    gcc \
+    && rm -rf /var/lib/apt/lists/*
 
-COPY . ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
 
 EXPOSE 8000
 
-ENTRYPOINT [ "python" ]
-
-CMD ["manage.py", "runserver"]
+CMD ["python","manage.py", "runserver", "0.0.0.0:8000"]

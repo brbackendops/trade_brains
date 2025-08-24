@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres-db
+  namespace: trade
+  labels:
+    app: postgresql
+spec:
+  serviceName: postgresql-headless
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgresql
+  template:
+  spec:
+    containers:
+    - name: postgresql
+      image: postgres:latest
+      ports:
+      - containerPort: 5432
+        protocol: TCP
+        name: postgres
+      env:
+      - name: POSTGRES_DB
+        value: tradedb
+      - name: POSTGRES_USER
+        value: postgres
+      - name: POSTGRES_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: postgresql-secret
+            key: postgres-password
+      - name: PGDATA
+        value: /var/lib/postgresql/data/pgdata
+      volumeMounts:
+      - name: postgresql-storage
+        mountPath: /var/lib/postgresql/data/pgdata
+      resources:
+        requests:
+          memory: "1Gi"
+          cpu: 1
+        limits:
+          memory: "2Gi"
+          cpu: 2
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgresql-headless
+  labels:
+    app: postgresql
+spec:
+  type: ClusterIP
+  clusterIP: None
+  ports:
+  - port: 5432
+    targetPort: 5432
+    name: postgres
+  selector:
+    app: postgresql
