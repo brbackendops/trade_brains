@@ -2,6 +2,7 @@ apiVersion: v1
 kind: ResourceQuta
 metadata:
   name: trade-resource-limits
+  namespace: trade
   labels:
     name: trade-lr
 spec:
