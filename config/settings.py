@@ -180,6 +180,11 @@ PROMETHEUS_METRIC_NAMESPACE = "trade-brains-watchlist"
 CELERY_RESULT_BACKEND = f'redis://{config('REDIS_CLIENT')}'
 CELERY_TASK_TIME_LIMIT = 3000
 CELERY_RESULT_BACKEND = 'django-db'
+CELERY_BROKER_URL = f'redis://{config('REDIS_CLIENT')}'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_RESULT_SERIALIZER = 'json'
+
+CELERY_IMPORTS = ('trade_root.company.tasks',)
 
 # Health Monitoring
 HEALTH_CHECK = {

@@ -115,6 +115,13 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       
+
+      - name: Debug Variables
+        run: |
+          echo "Docker Username: '${{ vars.DOCKER_USERNAME }}'"
+          echo "GitHub SHA: '${{ github.sha }}'"
+          echo "Full tag would be: '${{ vars.DOCKER_USERNAME }}/trade-app:dev-${{ github.sha }}'"
+        
       - name: push to hub
         id: push_to_hub
         uses: docker/build-push-action@v6
