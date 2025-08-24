@@ -173,10 +173,14 @@ STATICFILES_DIR = [
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+#Prometheus 
 PROMETHEUS_METRIC_NAMESPACE = "trade-brains-watchlist"
 
+#Celery
 CELERY_RESULT_BACKEND = f'redis://{config('REDIS_CLIENT')}/1'
+CELERY_TASK_TIME_LIMIT = 3000
 
+# Health Monitoring
 HEALTH_CHECK = {
     'DISK_USAGE_MAX': 100,
     'MEMORY_MIN': 1024
@@ -199,8 +203,11 @@ else:
         }
     }
 
+# Default Auth User Model
 AUTH_USER_MODEL='users.User'
 
+
+# DRF CONFIG
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -209,6 +216,8 @@ REST_FRAMEWORK = {
     )
 }
 
+
+# JWT CONFIG
 SIMPLE_JWT = {
     
     "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
@@ -238,6 +247,7 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_SERIALIZER": "rest_framework_simplejwt.serializers.TokenRefreshSlidingSerializer",        
 }
 
+# StructLog Config
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
