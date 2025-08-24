@@ -177,7 +177,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 PROMETHEUS_METRIC_NAMESPACE = "trade-brains-watchlist"
 
 #Celery
-CELERY_RESULT_BACKEND = f'redis://{config('REDIS_CLIENT')}/1'
+CELERY_RESULT_BACKEND = f'redis://{config('REDIS_CLIENT')}'
 CELERY_TASK_TIME_LIMIT = 3000
 CELERY_RESULT_BACKEND = 'django-db'
 
@@ -197,7 +197,7 @@ else:
     CACHES = {
         'default': {
             'BACKEND': 'django_redis.cache.RedisCache',
-            'LOCATION': f'redis://{config('REDIS_CLIENT')}/1',
+            'LOCATION': f'redis://{config('REDIS_CLIENT')}',
             'OPTIONS': {
                 'CLIENT_CLASS': 'django_redis.client.DefaultClient',
             }

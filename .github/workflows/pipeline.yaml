@@ -128,4 +128,4 @@ jobs:
         if: success() && steps.push_to_hub.outcome == 'success'
         run: |
           docker images
-          docker run --name ${{vars.DOCKER_USERNAME}}-trade-app-dev -d ${{ vars.DOCKER_USERNAME }}/trade-app:dev-${{ github.sha }}
+          docker run --name ${{vars.DOCKER_USERNAME}}-trade-app-dev -d ${{ vars.DOCKER_USERNAME }}/trade-app:dev-${{ github.sha }}`
