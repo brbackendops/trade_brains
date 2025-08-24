@@ -6,7 +6,7 @@ import random
 
 
 @shared_task
-def update_company_price_on_schedule(price):
+def update_company_price_on_schedule():
     try:        
         companies = Company.objects.all()
         

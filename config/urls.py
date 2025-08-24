@@ -33,11 +33,11 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
+    path('admin/', admin.site.urls),
     path('swagger-ui/',schema_view.with_ui('swagger',cache_timeout=0), name="swagger-ui"),
     path('', include('health_check.urls')),
     path('', include('django_prometheus.urls')),
     path('api/', include('trade_root.users.urls')),
     path('api/', include('trade_root.company.urls')),
     path('api/', include('trade_root.watchlist.urls')),
-    path('admin/', admin.site.urls),
 ]
