@@ -7,7 +7,7 @@ from decouple import config
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
-app = Celery('trades', broker=f'redis://{config('REDIS_CLIENT')}/1')
+app = Celery('trades_app', broker=f'redis://{config('REDIS_CLIENT')}/1')
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()

@@ -118,7 +118,7 @@ jobs:
 
       - name: Debug Variables
         run: |
-          echo "Docker Username: '${{ vars.DOCKER_USERNAME }}'"
+          echo "Docker Username: '${{ vars.DOCKER_USERNAME }}'
           echo "GitHub SHA: '${{ github.sha }}'"
           echo "Full tag would be: '${{ vars.DOCKER_USERNAME }}/trade-app:dev-${{ github.sha }}'"
         
@@ -129,7 +129,7 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          tags: trade-app:dev-${{ github.sha }}
+          tags: ${{ vars.DOCKER_USERNAME }}/trade-app:dev-${{ github.sha }}
           
       - name: Docker Image Testing
         if: success() && steps.push_to_hub.outcome == 'success'
