@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: fluent-bit
+  namespace: logging
+  labels:
+    name: fluent-bit-logging
+    tier: logging
+spec:
+  selector:
+    matchLabels:
+      name: fluent-bit-logger
+      tier: logging
+  template:
+    metadata:
+      labels:
+        name: fluent-bit-logger
+        tier: logging
+    spec:
+      serviceAccountName: fluent-bit-read
