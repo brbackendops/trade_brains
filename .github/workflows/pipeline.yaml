@@ -8,6 +8,7 @@ on:
 env:
   environment: development
   SECRET_KEY: ${{ secrets.SECRET_KEY }}
+  REDIS_CLIENT: ${{ secrets.REDIS_CLIENT }}
 jobs:
 
   build:
@@ -53,6 +54,12 @@ jobs:
     steps:
     - name: checkout
       uses: actions/checkout@v4
+
+    - name: setup redis
+      uses: shogo82148/actions-setup-redis@v1
+      with:
+        redis-version: '5.0.14'
+    - run: redis-cli ping
 
     - name: check files
       run: ls
