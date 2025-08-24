@@ -20,10 +20,10 @@ jobs:
       postgres:
         image: postgres
         env:
-          POSTGRES_PASSWORD: ${{ vars.POSTGRES_USERNAME }}
-          POSTGRES_USERNAME: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_USERNAME: ${{ vars.POSTGRES_USERNAME }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         options: >-
-          --health-cmd="pg_ready"
+          --health-cmd="pg_isready"
           --health-interval=10s
           --health-timeout=5s
           --health-retries=5
