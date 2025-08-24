@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'django_structlog',
     'django_prometheus',
     'django_celery_results',
+    'django_celery_beat',
     'health_check',
     'health_check.db',
     'health_check.contrib.migrations',
@@ -177,13 +178,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 PROMETHEUS_METRIC_NAMESPACE = "trade-brains-watchlist"
 
 #Celery
-CELERY_RESULT_BACKEND = f'redis://{config('REDIS_CLIENT')}'
+CELERY_RESULT_BACKEND = 'django-db'  # Or Redis if you're not using django-celery-results
 CELERY_TASK_TIME_LIMIT = 3000
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_BROKER_URL = f'redis://{config('REDIS_CLIENT')}'
+CELERY_BROKER_URL = 'redis://127.0.0.1:6379/0'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_RESULT_SERIALIZER = 'json'
-
 CELERY_IMPORTS = ('trade_root.company.tasks',)
 CELERY_TIMEZONE = 'Asia/Dhaka'
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'

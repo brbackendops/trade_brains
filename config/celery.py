@@ -1,25 +1,27 @@
 import os
 from celery import Celery
 from django.conf import settings
-from django_redis import get_redis_connection
 from decouple import config
+from celery.schedules import crontab
 
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
-app = Celery('trades_app', broker=f'redis://{config('REDIS_CLIENT')}/1')
+app = Celery('trades_app')
+app.conf.enable_utc = False
 
-app.config_from_object('django.conf:settings', namespace='CELERY')
+app.config_from_object(settings, namespace='CELERY')
 app.autodiscover_tasks()
 
 @app.task(bind=True)
 def check():
-    print("I am checking your stuff")
+    pass
 
 
+app.conf.CELERY_RESULT_BACKEND = f'redis://127.0.0.1:6379/0'
 app.conf.beat_schedule = {
-    "interval_10s": {
-        "task": "tasks.check",
-        "schedule": 30.0
+    "schedule_tasks": {
+        "task": "trade_root.company.tasks.update_company_price_on_schedule",
+        "schedule": crontab(minute='*/1')
     }
 }
