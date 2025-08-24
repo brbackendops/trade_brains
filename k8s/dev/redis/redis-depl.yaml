@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-depl
+  namespace: trade
+  labels:
+    name: redis-depl
+    tier: backend
+spec:
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  replicas: 1
+  selector:
+    matchLabels:
+      name: redis-app
+  template:
+    metadata:
+      labels:
+        name: redis-app
+    spec:
+      tolerations:
+      - key: "node"
+        operator: "Equal"
+        value: "blue"
+        effect: "NoSchedule"
+      containers:
+      - name: redis
+        image: redis
+        ports:
+        - containerPort: 6379
+          name: redis-http
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 3
+            memory: 2Gi
+          requests:
+            cpu: 1
+            memory: 1Gi

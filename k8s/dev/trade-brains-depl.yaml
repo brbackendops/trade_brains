@@ -29,6 +29,37 @@ spec:
       containers:
       - name: trade-brains-cnt
         image: luciferro10/trade-app:dev
+        env:
+        - name: DB_HOST
+          valueFrom:
+            configMapKyRef:
+              name: trade-config
+              key: DB_HOST
+        - name: DB_PORT
+          valueFrom:
+            configMapKyRef:
+              name: trade-config
+              key: DB_PORT
+        - name: REDIS_CLIENT
+          valueFrom:
+            configMapKyRef:
+              name: trade-config
+              key: REDIS_CLIENT
+        - name: DB_USERNAME
+          valueFrom:
+            configMapKyRef:
+              name: trade-config
+              key: DB_USERNAME
+        - name: DB_PASSWORD
+          valueFrom:
+            configMapKyRef:
+              name: trade-config
+              key: DB_PASSWORD
+        - name: SECRET_KEY
+          valueFrom:
+            configMapKyRef:
+              name: trade-secrets
+              key: SECRET_KEY
         ports:
         - containerPort: 8000
           name: http
