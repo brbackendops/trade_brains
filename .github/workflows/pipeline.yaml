@@ -123,7 +123,7 @@ jobs:
           context: .
           file: Dockerfile
           push: true
-          tags: ${{ vars.DOCKER_USERNAME }}/trade-app:${{ github.sha }}
+          tags: "${{ vars.DOCKER_USERNAME }}/trade-app:${{ github.sha }}"
           
       - name: Docker Image Testing
         if: success() && steps.push_to_hub.outcome == 'success'
