@@ -172,6 +172,9 @@ STATICFILES_DIR = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 PROMETHEUS_METRIC_NAMESPACE = "trade-brains-watchlist"
+
+CELERY_RESULT_BACKEND = f'redis://{config('REDIS_CLIENT')}/1'
+
 HEALTH_CHECK = {
     'DISK_USAGE_MAX': 100,
     'MEMORY_MIN': 1024

@@ -7,12 +7,12 @@ from decouple import config
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'config.settings')
 
-redis_client = get_redis_connection('default')
 app = Celery('trades', broker=f'redis://{config('REDIS_CLIENT')}/1')
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
+app.autodiscover_tasks()
 
-@app.task
+@app.task(bind=True)
 def check():
     print("I am checking your stuff")
 
