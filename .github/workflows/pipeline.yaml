@@ -77,8 +77,8 @@ jobs:
     - name: make tests
       run: |
         coverage run --source='.' manage.py test trade_root.company.tests
-        coverage run --append --source='.' test trade_root.users.tests
-        coverage run --append --source='.' test trade_root.watchlist.tests
+        coverage run --append --source='.' manage.py test trade_root.users.tests
+        coverage run --append --source='.' manage.py test trade_root.watchlist.tests
     
     - name: make coverage report
       run: coverage report > test_report.txt
