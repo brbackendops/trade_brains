@@ -115,11 +115,8 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       
-
-      - name: DEBUG DOCKER_USERNAME
-        run: echo ${{ vars.DOCKER_USERNAME }}
       - name: push to hub
-        id: push_to_hub        
+        id: push_to_hub
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -131,4 +128,4 @@ jobs:
         if: success() && steps.push_to_hub.outcome == 'success'
         run: |
           docker images
-          docker run --name ${{ vars.DOCKER_USERNAME }}/trade-app:dev -d ${{ vars.DOCKER_USERNAME }}/solar-system:${{ github.sha }}
+          docker run --name ${{ vars.DOCKER_USERNAME }}-trade-app-dev -d ${{ vars.DOCKER_USERNAME }}/trade-app:dev-${{ github.sha }}
