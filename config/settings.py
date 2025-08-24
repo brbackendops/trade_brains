@@ -39,12 +39,12 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [    
     'rest_framework',   
-    'rest_framework_swagger', 
     'drf_yasg',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'django_structlog',
     'django_prometheus',
+    'django_celery_results',
     'health_check',
     'health_check.db',
     'health_check.contrib.migrations',
@@ -179,6 +179,7 @@ PROMETHEUS_METRIC_NAMESPACE = "trade-brains-watchlist"
 #Celery
 CELERY_RESULT_BACKEND = f'redis://{config('REDIS_CLIENT')}/1'
 CELERY_TASK_TIME_LIMIT = 3000
+CELERY_RESULT_BACKEND = 'django-db'
 
 # Health Monitoring
 HEALTH_CHECK = {
