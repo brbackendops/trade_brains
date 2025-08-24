@@ -1,7 +1,7 @@
 version: '3'
 services:
   app:
-    image: ''
+    image: luciferro10/trade-app:dev
     build:
       context: .
     ports:
