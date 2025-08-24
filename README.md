@@ -11,6 +11,10 @@
   * [X]  many to many relation
 * [X]  swagger ( /swagger-ui )
 * [X]  celery
+* [X]  metrics ( /metrics )
+
+  * [X]  using prometheus client for django
+* [X]  django health checks
 * [X]  docker
 
   * [X]  docker file
