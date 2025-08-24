@@ -42,6 +42,8 @@ CSRF_TRUSTED_ORIGINS = []
 # Application definition
 
 INSTALLED_APPS = [    
+                  
+    # deps                  
     'rest_framework',   
     'drf_yasg',
     'rest_framework_simplejwt',
@@ -59,9 +61,13 @@ INSTALLED_APPS = [
     'health_check.contrib.celery',
     'health_check.contrib.celery_ping',
     # 'health_check.celery',
+    
+    # apps
     'trade_root.users',
     'trade_root.company',
     'trade_root.watchlist',
+    
+    
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
