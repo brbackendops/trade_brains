@@ -35,14 +35,9 @@ DEBUG = True if config("environment") == "development" else False
 ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
-    '*.ngrok-free.app',
-    'https://incredibly-exotic-starfish.ngrok-free.app',
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    'https://*.ngrok-free.app',
-    'https://incredibly-exotic-starfish.ngrok-free.app'
-]
+CSRF_TRUSTED_ORIGINS = []
 
 # Application definition
 
