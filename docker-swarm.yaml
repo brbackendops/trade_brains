@@ -11,6 +11,10 @@ services:
     depends_on:
     - db
     - redis
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
   redis:
     image: redis
     ports:
@@ -19,6 +23,13 @@ services:
     - redis_data:/data
     healthcheck:
       test: [ "CMD", "redis-cli", "ping" ]
+      intervals: 10s
+      timeout: 5s
+      retries: 2
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
   db:
     image: postgres
     ports:
@@ -27,6 +38,10 @@ services:
     - docker.env
     volumes:
     - postgres_data:/vara/lib/postgresql/data
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
 volumes:
   postgres_data:
   redis_data:

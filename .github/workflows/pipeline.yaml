@@ -3,7 +3,9 @@ on:
   workflow_dispatch:
   push:
     branches:
-    - main
+    - dev
+  pull_request:
+    branches:
     - dev
 env:
   environment: development
@@ -121,7 +123,7 @@ jobs:
           file: Dockerfile
           push: true
           tags: |
-            ${{ vars.DOCKER_USERNAME }}/trade-app:dev:${{ github.sha }}
+            ${{ vars.DOCKER_USERNAME }}/trade-app:dev-${{ github.sha }}
           
       - name: Docker Image Testing
         if: success() && steps.push_to_hub.outcome == 'success'
