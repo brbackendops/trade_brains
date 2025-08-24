@@ -37,7 +37,7 @@ urlpatterns = [
     path('swagger-ui/',schema_view.with_ui('swagger',cache_timeout=0), name="swagger-ui"),
     path('', include('health_check.urls')),
     path('', include('django_prometheus.urls')),
-    path('api/', include('trade_root.users.urls')),
-    path('api/', include('trade_root.company.urls')),
-    path('api/', include('trade_root.watchlist.urls')),
+    path('api/users/', include('trade_root.users.urls')),
+    path('api/company/', include('trade_root.company.urls')),
+    path('api/watchlist/', include('trade_root.watchlist.urls')),
 ]
